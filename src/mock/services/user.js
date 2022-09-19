@@ -5,7 +5,7 @@ const info = options => {
   console.log('options', options)
   const userInfo = {
     id: '4291d7da9005377ec9aec4a71ea837f',
-    name: '天野远子',
+    name: '塞西',
     username: 'admin',
     password: '',
     avatar: '/avatar2.jpg',
@@ -34,6 +34,42 @@ const info = options => {
         roleId: 'admin',
         permissionId: 'dashboard',
         permissionName: '仪表盘',
+        actions:
+          '[{"action":"add","defaultCheck":false,"describe":"新增"},{"action":"query","defaultCheck":false,"describe":"查询"},{"action":"get","defaultCheck":false,"describe":"详情"},{"action":"update","defaultCheck":false,"describe":"修改"},{"action":"delete","defaultCheck":false,"describe":"删除"}]',
+        actionEntitySet: [
+          {
+            action: 'add',
+            describe: '新增',
+            defaultCheck: false
+          },
+          {
+            action: 'query',
+            describe: '查询',
+            defaultCheck: false
+          },
+          {
+            action: 'get',
+            describe: '详情',
+            defaultCheck: false
+          },
+          {
+            action: 'update',
+            describe: '修改',
+            defaultCheck: false
+          },
+          {
+            action: 'delete',
+            describe: '删除',
+            defaultCheck: false
+          }
+        ],
+        actionList: null,
+        dataAccess: null
+      },
+      {
+        roleId: 'admin',
+        permissionId: 'work',
+        permissionName: '工作页',
         actions:
           '[{"action":"add","defaultCheck":false,"describe":"新增"},{"action":"query","defaultCheck":false,"describe":"查询"},{"action":"get","defaultCheck":false,"describe":"详情"},{"action":"update","defaultCheck":false,"describe":"修改"},{"action":"delete","defaultCheck":false,"describe":"删除"}]',
         actionEntitySet: [
@@ -498,6 +534,16 @@ const userNav = options => {
       component: 'Workplace'
     },
     {
+      name: 'testwork',
+      parentId: 1,
+      id: 8,
+      meta: {
+        title: '测试工作',
+        show: true
+      },
+      component: 'TestWork'
+    },
+    {
       name: 'monitor',
       path: 'https://www.baidu.com/',
       parentId: 1,
@@ -505,7 +551,7 @@ const userNav = options => {
       meta: {
         title: '监控页（外部）',
         target: '_blank',
-        show: true
+        show: false
       }
     },
     {
@@ -518,6 +564,37 @@ const userNav = options => {
       },
       component: 'Analysis',
       path: '/dashboard/analysis'
+    },
+    {
+      name: 'Statistics',
+      parentId: 1,
+      id: 3,
+      meta: {
+        title: '统计',
+        show: true
+      }
+    },
+
+    // work
+    {
+      name: 'work',
+      parentId: 0,
+      id: 100,
+      meta: {
+        title: '工作页',
+        icon: 'edit'
+      },
+      redirect: '/work/process',
+      component: 'RouteView'
+    },
+    {
+      name: 'process',
+      parentId: 100,
+      id: 101,
+      meta: {
+        title: '测试流程'
+      },
+      component: 'Process'
     },
 
     // form
@@ -766,7 +843,7 @@ const userNav = options => {
       parentId: 0,
       id: 10028,
       meta: {
-        title: '个人页',
+        title: '我的',
         icon: 'user',
         show: true
       },
@@ -858,5 +935,10 @@ const userNav = options => {
   return json
 }
 
+const processInfo = options => {}
+
+// 拦截/api/user/info/请求并返回info
 Mock.mock(/\/api\/user\/info/, 'get', info)
+// 拦截/api/user/nav/请求并返回userNav
 Mock.mock(/\/api\/user\/nav/, 'get', userNav)
+Mock.mock(/\/api\/process/, 'get', processInfo)

@@ -4,23 +4,23 @@
     <div class="container">
       <div class="user-layout-lang">
         <select-lang class="select-lang-trigger" />
-      </div>
-      <div class="user-layout-content">
         <div class="top">
           <div class="header">
             <a href="/">
-              <img src="~@/assets/logo.svg" class="logo" alt="logo">
-              <span class="title">Ant Design</span>
+              <img src="~@/assets/icons/logo.png" class="logo" alt="logo">
+              <!-- <span class="title">Ant Design</span> -->
             </a>
           </div>
           <div class="desc">
             {{ $t('layouts.userLayout.title') }}
           </div>
         </div>
+      </div>
+      <div class="user-layout-content">
 
         <router-view />
 
-        <div class="footer">
+        <!-- <div class="footer">
           <div class="links">
             <a href="_self">帮助</a>
             <a href="_self">隐私</a>
@@ -29,7 +29,7 @@
           <div class="copyright">
             Copyright &copy; 2018 vueComponent
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -77,9 +77,11 @@ export default {
 
     .user-layout-lang {
       width: 100%;
-      height: 40px;
+      min-height: max-content;
       line-height: 44px;
       text-align: right;
+      background: url(~@/assets/topbg.png) repeat-x;
+      background-size: cover;
 
       .select-lang-trigger {
         cursor: pointer;
@@ -90,6 +92,47 @@ export default {
         justify-content: center;
         font-size: 18px;
         vertical-align: middle;
+      }
+
+      .top {
+        text-align: center;
+
+        .header {
+          height: 44px;
+          line-height: 44px;
+
+          .badge {
+            position: absolute;
+            display: inline-block;
+            line-height: 1;
+            vertical-align: middle;
+            margin-left: -12px;
+            margin-top: -10px;
+            opacity: 0.8;
+          }
+
+          .logo {
+            height: 44px;
+            vertical-align: top;
+            margin-right: 16px;
+            border-style: none;
+          }
+
+          .title {
+            font-size: 33px;
+            color: rgba(0, 0, 0, .85);
+            font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            font-weight: 600;
+            position: relative;
+            top: 2px;
+          }
+        }
+        .desc {
+          font-size: 20px;
+          color: rgba(0, 0, 0, 0.45);
+          margin-top: 12px;
+          margin-bottom: 40px;
+        }
       }
     }
 

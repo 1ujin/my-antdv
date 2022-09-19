@@ -9,12 +9,14 @@ import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { i18nRender } from '@/locales'
 import { generatorDynamicRouter } from '@/router/generator-routers'
 
-NProgress.configure({ showSpinner: false }) // NProgress Configuration
+// 转圈动画
+NProgress.configure({ showSpinner: true }) // NProgress Configuration
 
 const allowList = ['login', 'register', 'registerResult'] // no redirect allowList
 const loginRoutePath = '/user/login'
 const defaultRoutePath = '/dashboard/workplace'
 
+// 全局路由拦截
 router.beforeEach((to, from, next) => {
   NProgress.start() // start progress bar
   to.meta && typeof to.meta.title !== 'undefined' && setDocumentTitle(`${i18nRender(to.meta.title)} - ${domTitle}`)
@@ -23,7 +25,7 @@ router.beforeEach((to, from, next) => {
   if (token) {
     if (to.path === loginRoutePath) {
       next({ path: defaultRoutePath })
-      NProgress.done()
+      NProgress.done() // finish progress bar
     } else {
       // check login user.roles is null
       if (store.getters.roles.length === 0) {
@@ -32,7 +34,11 @@ router.beforeEach((to, from, next) => {
           .dispatch('GetInfo')
           .then(res => {
             // generate dynamic router
-            generatorDynamicRouter(token).then(routers => {
+            var promise = generatorDynamicRouter(token)
+            promise.then(routers => {
+              // 此时promise状态已经从pending变为fulfilled
+              console.log(routers)
+              console.log(promise)
               store.commit('SET_ROUTERS', routers)
 
               // 根据roles权限生成可访问的路由表
@@ -72,6 +78,7 @@ router.beforeEach((to, from, next) => {
       // 在免登录名单，直接进入
       next()
     } else {
+      // no permission, redirect to default route path
       next({ path: loginRoutePath, query: { redirect: to.fullPath } })
       NProgress.done() // if current page is login will not trigger afterEach hook, so manually handle it
     }

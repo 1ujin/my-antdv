@@ -1,5 +1,5 @@
 // eslint-disable-next-line
-import { UserLayout, BasicLayout, BlankLayout } from '@/layouts'
+import { UserLayout, BasicLayout, BlankLayout, PageView } from '@/layouts'
 import { bxAnaalyse } from '@/core/icons'
 
 const RouteView = {
@@ -40,6 +40,27 @@ export const asyncRouterMap = [
             name: 'Workplace',
             component: () => import('@/views/dashboard/Workplace'),
             meta: { title: 'menu.dashboard.workplace', keepAlive: true, permission: ['dashboard'] }
+          },
+          {
+            path: '/dashboard/testwork',
+            name: 'TestWork',
+            component: () => import('@/views/dashboard/TestWork'),
+            meta: { title: 'menu.dashboard.testwork', keepAlive: false, permission: ['dashboard'] }
+          }
+        ]
+      },
+      // work
+      {
+        path: '/work',
+        redirect: '/work/process',
+        component: RouteView,
+        meta: { title: 'menu.work', icon: 'desktop', permission: ['work'] },
+        children: [
+          {
+            path: '/work/process',
+            name: 'Process',
+            component: () => import('@/views/work/Process'),
+            meta: { title: 'menu.work.process', keepAlive: true, permission: ['work'] }
           }
         ]
       },
@@ -267,10 +288,9 @@ export const asyncRouterMap = [
             ]
           }
         ]
-      }
+      },
 
       // other
-      /*
       {
         path: '/other',
         name: 'otherPage',
@@ -317,7 +337,7 @@ export const asyncRouterMap = [
               {
                 path: '/other/list/system-role',
                 name: 'SystemRole',
-                component: () => import('@/views/role/RoleList'),
+                component: () => import('@/views/other/RoleList'),
                 meta: { title: '角色列表2', keepAlive: true }
               },
               {
@@ -330,7 +350,6 @@ export const asyncRouterMap = [
           }
         ]
       }
-      */
     ]
   },
   {
