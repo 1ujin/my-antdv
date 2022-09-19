@@ -516,8 +516,8 @@ const userNav = options => {
       parentId: 0,
       id: 1,
       meta: {
+        title: 'menu.dashboard',
         icon: 'dashboard',
-        title: '仪表盘',
         show: true
       },
       component: 'RouteView',
@@ -528,7 +528,7 @@ const userNav = options => {
       parentId: 1,
       id: 7,
       meta: {
-        title: '工作台',
+        title: 'menu.dashboard.monitor',
         show: true
       },
       component: 'Workplace'
@@ -549,7 +549,7 @@ const userNav = options => {
       parentId: 1,
       id: 3,
       meta: {
-        title: '监控页（外部）',
+        title: 'menu.dashboard.workplace',
         target: '_blank',
         show: false
       }
@@ -559,7 +559,7 @@ const userNav = options => {
       parentId: 1,
       id: 2,
       meta: {
-        title: '分析页',
+        title: 'menu.dashboard.analysis',
         show: true
       },
       component: 'Analysis',
@@ -604,7 +604,7 @@ const userNav = options => {
       id: 10,
       meta: {
         icon: 'form',
-        title: '表单页'
+        title: 'menu.form'
       },
       redirect: '/form/base-form',
       component: 'RouteView'
@@ -614,7 +614,7 @@ const userNav = options => {
       parentId: 10,
       id: 6,
       meta: {
-        title: '基础表单'
+        title: 'menu.form.basic-form'
       },
       component: 'BasicForm'
     },
@@ -623,7 +623,7 @@ const userNav = options => {
       parentId: 10,
       id: 5,
       meta: {
-        title: '分步表单'
+        title: 'menu.form.step-form'
       },
       component: 'StepForm'
     },
@@ -632,7 +632,7 @@ const userNav = options => {
       parentId: 10,
       id: 4,
       meta: {
-        title: '高级表单'
+        title: 'menu.form.advanced-form'
       },
       component: 'AdvanceForm'
     },
@@ -644,7 +644,7 @@ const userNav = options => {
       id: 10010,
       meta: {
         icon: 'table',
-        title: '列表页',
+        title: 'menu.list',
         show: true
       },
       redirect: '/list/table-list',
@@ -656,7 +656,7 @@ const userNav = options => {
       id: 10011,
       path: '/list/table-list/:pageNo([1-9]\\d*)?',
       meta: {
-        title: '查询表格',
+        title: 'menu.list.table-list',
         show: true
       },
       component: 'TableList'
@@ -666,7 +666,7 @@ const userNav = options => {
       parentId: 10010,
       id: 10012,
       meta: {
-        title: '标准列表',
+        title: 'menu.list.basic-list',
         show: true
       },
       component: 'StandardList'
@@ -676,7 +676,7 @@ const userNav = options => {
       parentId: 10010,
       id: 10013,
       meta: {
-        title: '卡片列表',
+        title: 'menu.list.card-list',
         show: true
       },
       component: 'CardList'
@@ -686,7 +686,7 @@ const userNav = options => {
       parentId: 10010,
       id: 10014,
       meta: {
-        title: '搜索列表',
+        title: 'menu.list.search-list',
         show: true
       },
       redirect: '/list/search/article',
@@ -697,7 +697,7 @@ const userNav = options => {
       parentId: 10014,
       id: 10015,
       meta: {
-        title: '搜索列表（文章）',
+        title: 'menu.list.search-list.articles',
         show: true
       },
       component: 'SearchArticles'
@@ -707,7 +707,7 @@ const userNav = options => {
       parentId: 10014,
       id: 10016,
       meta: {
-        title: '搜索列表（项目）',
+        title: 'menu.list.search-list.projects',
         show: true
       },
       component: 'SearchProjects'
@@ -717,7 +717,7 @@ const userNav = options => {
       parentId: 10014,
       id: 10017,
       meta: {
-        title: '搜索列表（应用）',
+        title: 'menu.list.search-list.applications',
         show: true
       },
       component: 'SearchApplications'
@@ -729,7 +729,7 @@ const userNav = options => {
       parentId: 0,
       id: 10018,
       meta: {
-        title: '详情页',
+        title: 'menu.profile',
         icon: 'profile',
         show: true
       },
@@ -741,7 +741,7 @@ const userNav = options => {
       parentId: 10018,
       id: 10019,
       meta: {
-        title: '基础详情页',
+        title: 'menu.profile.basic',
         show: true
       },
       component: 'ProfileBasic'
@@ -751,7 +751,7 @@ const userNav = options => {
       parentId: 10018,
       id: 10020,
       meta: {
-        title: '高级详情页',
+        title: 'menu.profile.advanced',
         show: true
       },
       component: 'ProfileAdvanced'
@@ -763,7 +763,7 @@ const userNav = options => {
       parentId: 0,
       id: 10021,
       meta: {
-        title: '结果页',
+        title: 'menu.result',
         icon: 'check-circle-o',
         show: true
       },
@@ -775,7 +775,7 @@ const userNav = options => {
       parentId: 10021,
       id: 10022,
       meta: {
-        title: '成功',
+        title: 'menu.result.success',
         hiddenHeaderContent: true,
         show: true
       },
@@ -786,7 +786,7 @@ const userNav = options => {
       parentId: 10021,
       id: 10023,
       meta: {
-        title: '失败',
+        title: 'menu.result.fail',
         hiddenHeaderContent: true,
         show: true
       },
@@ -799,7 +799,7 @@ const userNav = options => {
       parentId: 0,
       id: 10024,
       meta: {
-        title: '异常页',
+        title: 'menu.exception',
         icon: 'warning',
         show: true
       },
@@ -811,7 +811,7 @@ const userNav = options => {
       parentId: 10024,
       id: 10025,
       meta: {
-        title: '403',
+        title: 'menu.exception.not-permission',
         show: true
       },
       component: 'Exception403'
@@ -821,7 +821,7 @@ const userNav = options => {
       parentId: 10024,
       id: 10026,
       meta: {
-        title: '404',
+        title: 'menu.exception.not-find',
         show: true
       },
       component: 'Exception404'
@@ -831,7 +831,7 @@ const userNav = options => {
       parentId: 10024,
       id: 10027,
       meta: {
-        title: '500',
+        title: 'menu.exception.server-error',
         show: true
       },
       component: 'Exception500'
@@ -855,7 +855,7 @@ const userNav = options => {
       parentId: 10028,
       id: 10029,
       meta: {
-        title: '个人中心',
+        title: 'menu.account.center',
         show: true
       },
       component: 'AccountCenter'
@@ -866,7 +866,7 @@ const userNav = options => {
       parentId: 10028,
       id: 10030,
       meta: {
-        title: '个人设置',
+        title: 'menu.account.settings',
         hideHeader: true,
         hideChildren: true,
         show: true
@@ -880,7 +880,7 @@ const userNav = options => {
       parentId: 10030,
       id: 10031,
       meta: {
-        title: '基本设置',
+        title: 'account.settings.menuMap.basic',
         show: false
       },
       component: 'BasicSetting'
@@ -891,7 +891,7 @@ const userNav = options => {
       parentId: 10030,
       id: 10032,
       meta: {
-        title: '安全设置',
+        title: 'account.settings.menuMap.security',
         show: false
       },
       component: 'SecuritySettings'
@@ -902,7 +902,7 @@ const userNav = options => {
       parentId: 10030,
       id: 10033,
       meta: {
-        title: '个性化设置',
+        title: 'account.settings.menuMap.custom',
         show: false
       },
       component: 'CustomSettings'
@@ -913,7 +913,7 @@ const userNav = options => {
       parentId: 10030,
       id: 10034,
       meta: {
-        title: '账户绑定',
+        title: 'account.settings.menuMap.binding',
         show: false
       },
       component: 'BindingSettings'
@@ -924,7 +924,7 @@ const userNav = options => {
       parentId: 10030,
       id: 10034,
       meta: {
-        title: '新消息通知',
+        title: 'account.settings.menuMap.notification',
         show: false
       },
       component: 'NotificationSettings'
