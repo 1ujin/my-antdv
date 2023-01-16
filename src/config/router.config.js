@@ -46,6 +46,12 @@ export const asyncRouterMap = [
             name: 'TestWork',
             component: () => import('@/views/dashboard/TestWork'),
             meta: { title: 'menu.dashboard.testwork', keepAlive: false, permission: ['dashboard'] }
+          },
+          {
+            path: '/dashboard/schedule',
+            name: 'Schedule',
+            component: () => import('@/views/dashboard/Schedule'),
+            meta: { title: 'menu.dashboard.schedule', keepAlive: false, permission: ['dashboard'] }
           }
         ]
       },
@@ -61,6 +67,14 @@ export const asyncRouterMap = [
             name: 'Process',
             component: () => import('@/views/work/Process'),
             meta: { title: 'menu.work.process', keepAlive: true, permission: ['work'] }
+          }, {
+            path: '/work/filemanager',
+            name: 'FileManager1',
+            component: () => import('@/views/work/FileManager1'),
+            meta: { title: 'menu.work.filemanager', keepAlive: true, permission: ['work'] }
+          }, {
+            path: '/work/utils',
+            name: 'Utils'
           }
         ]
       },

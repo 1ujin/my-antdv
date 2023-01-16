@@ -5,11 +5,16 @@
         <span :class="`node-item node-item-${item.prop}`" v-for="(item, index) in nodeItemList" :key="index" @mousedown="(evt) => nodeItemMouseDown(evt, item.value)">
           {{ item.label }}
         </span>
-        <a-button class="node-item" @click="showModal">
+        <a-button class="node-item" @click="showNodeItemModal">
           <a-icon type="plus-circle" />
         </a-button>
       </div>
-      <div class="flow-container" ref="flowContainer">
+      <div
+        class="flow-container"
+        ref="flowContainer"
+        @mousewheel="superFlowMouseWheel($event)"
+        @DOMMouseScroll="superFlowMouseWheel($event)"
+      >
         <super-flow
           ref="superFlow"
           :graph-menu="graphMenu"
@@ -18,18 +23,30 @@
           :link-base-style="linkBaseStyle"
           :link-style="linkStyle"
           :link-desc="linkDesc"
+          :style="{ transform: `scale(${this.scaleNumber})` }"
         >
           <template v-slot:node="{ meta }">
             <div @mouseup="nodeMouseUp" @click="nodeClick" :class="`flow-node flow-node-${meta.prop}`">
               <header class="ellipsis">
                 {{ meta.name }}
               </header>
+              <section :style="{display: meta.prop === 'action' ? 'block' : 'none'}">
+                {{ meta.aging == '0' ? '老炼前' : '老炼后' }} {{ meta.temperature }}℃
+              </section>
               <section>
                 {{ meta.desc }}
               </section>
             </div>
           </template>
         </super-flow>
+        <div style="z-index: 1;position: absolute;left: 1%;bottom: 4%">
+          <a-button @click="scaleNumber += 0.1">
+            <a-icon type="zoom-in" />
+          </a-button>
+          <a-button @click="scaleNumber -= 0.1">
+            <a-icon type="zoom-out" />
+          </a-button>
+        </div>
       </div>
     </div>
 
@@ -65,12 +82,12 @@
       </span>
     </el-dialog> -->
 
-    <a-modal v-model="visible" title="新增测试节点类型" @ok="handleOk">
+    <a-modal v-model="nodeItemModalvisible" title="新增测试节点类型" @ok="addNodeItem">
       <a-form
-        layout="vertical"
-        name="basic"
-        @keyup.native.enter="settingSubmit"
-        @submit.native.prevent
+        layout="horizontal"
+        :label-col="{ span: 5 }"
+        :wrapper-col="{ span: 19 }"
+        @submit="addNodeItem"
         v-show="true"
         ref="nodeSetting"
         :model="nodeSetting"
@@ -81,18 +98,18 @@
           :rules="[{ required: true, message: '必须输入测试节点名称!' }]">
           <a-input v-model="nodeSetting.name" placeholder="请输入测试节点名称" allow-clear show-count="true" :max-length="30" />
         </a-form-item>
-        <a-form-item label="测试节点温度">
+        <a-form-item label="老化测试温度" name="aging-temperature">
           <a-input-group compact>
-            <a-radio-group>
-              <a-radio-button value="老炼前">老炼前</a-radio-button>
-              <a-radio-button value="老炼后">老炼后</a-radio-button>
+            <a-radio-group v-model="nodeSetting.aging">
+              <a-radio-button value="0">老炼前</a-radio-button>
+              <a-radio-button value="1">老炼后</a-radio-button>
             </a-radio-group>
             <a-input-number
-              addon-before="￥"
-              addon-after="℃"
-              style="width: calc(100% - 180px)">
+              v-model="nodeSetting.temperature"
+              :formatter="value => `${value}℃`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+              :max="200"
+              :min="-200">
             </a-input-number>
-            <span class="ant-input-group-addon" style="float: right;">℃</span>
           </a-input-group>
         </a-form-item>
         <a-form-item label="测试节点描述" name="desc">
@@ -102,8 +119,121 @@
             allow-clear
             show-count="true"
             :max-length="300"
-            :autosize="{ minRows: 5, maxRows: 10}"
+            :autoSize="{ minRows: 5, maxRows: 10}"
           />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+
+    <a-modal v-model="drawerConf.visible" :title="drawerConf.title" @ok="settingSubmit">
+      <a-form
+        layout="horizontal"
+        labelAlign="left"
+        :label-col="{ span: 5 }"
+        :wrapper-col="{ span: 19 }"
+        @submit="settingSubmit"
+        v-show="drawerConf.type === drawerType.node"
+        ref="nodeSetting"
+        :model="nodeSetting"
+      >
+        <a-form-item
+          label="测试节点名称"
+          name="name"
+          :rules="[{ required: true, message: '必须输入测试节点名称!' }]">
+          <a-input v-model="nodeSetting.name" placeholder="请输入测试节点名称" allow-clear show-count="true" :max-length="20" />
+        </a-form-item>
+        <a-form-item label="老化测试温度" name="aging-temperature">
+          <a-input-group compact>
+            <a-radio-group v-model="nodeSetting.aging">
+              <a-radio-button value="0">老炼前</a-radio-button>
+              <a-radio-button value="1">老炼后</a-radio-button>
+            </a-radio-group>
+            <a-input-number
+              v-model="nodeSetting.temperature"
+              :formatter="value => `${value}℃`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+              :max="200"
+              :min="-200">
+            </a-input-number>
+          </a-input-group>
+        </a-form-item>
+        <a-form-item label="测试节点描述" name="desc">
+          <a-textarea
+            placeholder="请输入测试节点描述"
+            v-model="nodeSetting.desc"
+            allow-clear
+            show-count="true"
+            :max-length="300"
+            :autoSize="{ minRows: 5, maxRows: 10}"
+          />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+
+    <a-modal v-model="dispatchConf.visible" :title="dispatchConf.title" @ok="dispatchSubmit" :width="dispatchConf.width">
+      <a-form>
+        <a-form-item label="测试人员和机台配置" name="list" :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
+          <a-table bordered :data-source="dataSource" :columns="columns">
+
+            <!-- 人员 -->
+            <template v-slot:name="text, record">
+              <editable-cell :text="text" @cell-change="onCellChange(record.key, 'name', $event)">
+                <template v-slot="{ cellValue, onChange }">
+                  <a-select :value="cellValue" @change="onChange">
+                    <a-select-option value="张三">张三</a-select-option>
+                    <a-select-option value="李四">李四</a-select-option>
+                    <a-select-option value="王五">王五</a-select-option>
+                  </a-select>
+                </template>
+              </editable-cell>
+            </template>
+
+            <!-- 机台 -->
+            <template v-slot:machine="text, record">
+              <editable-cell :text="text" @change="onCellChange(record.key, 'machine', $event)">
+                <template v-slot="{ cellValue, onChange }">
+                  <a-select :value="cellValue" @change="onChange">
+                    <a-select-option value="2号测试机(93000)">2号测试机(93000)</a-select-option>
+                    <a-select-option value="5号测试机(750)">5号测试机(750)</a-select-option>
+                    <a-select-option value="6号测试机(Ultra Flex)">6号测试机(Ultra Flex)</a-select-option>
+                  </a-select>
+                </template>
+              </editable-cell>
+            </template>
+
+            <!-- 操作 -->
+            <template v-slot:operation="text, record">
+              <a-popconfirm
+                v-if="dataSource.length"
+                title="Sure to delete?"
+                @confirm="() => onDelete(record.key)"
+              >
+                <a-button type="danger"><a-icon type="delete" />删除配置</a-button>
+              </a-popconfirm>
+            </template>
+
+            <!-- 上传 -->
+            <template v-slot:expandedRowRender>
+              <a-upload>
+                <a-button><a-icon type="select" />选择上传表格</a-button>
+              </a-upload>
+              <a-button type="primary" :disabled="false" style="margin-top: 10px">
+                <template v-if="false">
+                  <a-icon type="loading" />
+                </template>
+                <template v-else>
+                  <a-icon type="check" />
+                </template>
+                读取芯片编号
+              </a-button>
+            </template>
+
+          </a-table>
+          <div style="height: 0px">
+            <a-button class="editable-add-btn" @click="handleAdd" style="transform: translateY(-52px)">Add</a-button>
+          </div>
+          <div class="demo-image__preview">
+            <el-image style="left: 50%; transform: translateX(-50%); width: 30%" :src="require('..//..//assets//devicemap.jpg')" :preview-src-list="[ require('..//..//assets//devicemap.jpg') ]" />
+          </div>
         </a-form-item>
       </a-form>
     </a-modal>
@@ -112,10 +242,13 @@
 
 <script>
 // import { Button, Dialog, Form, FormItem, Input } from 'element-ui'
-import { ref } from 'vue'
+import EditableCell from '@/components/Flow/EditableCell'
 import SuperFlow from 'vue-super-flow'
-// import 'element-ui/lib/theme-chalk/index.css'
+import { Image } from 'element-ui'
+import { ref } from 'vue'
+// import { cloneDeep } from 'lodash-es'
 import 'vue-super-flow/lib/index.css'
+import 'element-ui/lib/theme-chalk/index.css'
 
 const drawerType = {
   node: 0,
@@ -125,33 +258,92 @@ const drawerType = {
 export default {
   name: 'Flow',
   components: {
-    SuperFlow
     // 'el-button': Button,
     // 'el-dialog': Dialog,
     // 'el-form': Form,
     // 'el-form-item': FormItem,
     // 'el-input': Input,
+    'el-image': Image,
+    'editable-cell': EditableCell,
+    SuperFlow
   },
   setup () {
-    const visible = ref(false)
+    const nodeItemModalvisible = ref(false)
+    const flowNodeModalVisible = ref(false)
 
-    const showModal = () => {
-      visible.value = true
+    const showNodeItemModal = () => {
+      nodeItemModalvisible.value = true
     }
 
-    const handleOk = e => {
+    const showFlowNodeModal = () => {
+      flowNodeModalVisible.value = true
+    }
+
+    const nodeItemModalHandleOk = e => {
       console.log(e)
-      visible.value = false
+      nodeItemModalvisible.value = false
+    }
+
+    const flowNodeModalHandleOk = e => {
+      console.log(e)
+      flowNodeModalVisible.value = false
     }
 
     return {
-      visible,
-      showModal,
-      handleOk
+      nodeItemModalvisible,
+      showNodeItemModal,
+      nodeItemModalHandleOk,
+      flowNodeModalVisible,
+      showFlowNodeModal,
+      flowNodeModalHandleOk
     }
   },
+
   data () {
     return {
+      scaleNumber: 1.0,
+      dataSource: [
+        {
+          key: '0',
+          name: '张三',
+          chip: '32',
+          machine: '2号测试机(93000)',
+          chipIdFiles: []
+        },
+        {
+          key: '1',
+          name: '李四',
+          chip: '32',
+          machine: '6号测试机(Ultra Flex)',
+          chipIdFiles: []
+        }
+      ],
+      count: 2,
+      columns: [
+        {
+          title: '人员',
+          dataIndex: 'name',
+          width: '25%',
+          scopedSlots: { customRender: 'name' }
+        },
+        {
+          title: '机台',
+          dataIndex: 'machine',
+          width: '25%',
+          scopedSlots: { customRender: 'machine' }
+        },
+        {
+          title: '数量',
+          dataIndex: 'chip',
+          width: '25%'
+        },
+        {
+          title: '操作',
+          dataIndex: 'operation',
+          width: '25%',
+          scopedSlots: { customRender: 'operation' }
+        }
+      ],
       drawerType,
       drawerConf: {
         title: '',
@@ -165,16 +357,27 @@ export default {
           conf.info = info
           if (conf.type === drawerType.node) {
             conf.title = '节点'
+            console.log(this.$refs.nodeSetting)
             if (this.$refs.nodeSetting) {
-              this.$refs.nodeSetting.resetFields()
+              // this.$refs.nodeSetting.resetFields()
             }
-            this.$set(this.nodeSetting, 'name', info.meta.name)
-            this.$set(this.nodeSetting, 'desc', info.meta.desc)
-            this.$set(this.nodeSetting, 'prop', info.meta.prop)
+            console.log(this.$refs.nodeSetting)
+            Object.keys(info.meta).forEach(key => {
+              this.$set(this.nodeSetting, key, info.meta[key])
+            })
+            if (this.nodeSetting.name !== undefined && this.nodeSetting.name !== '') {
+              this.drawerConf.title = '编辑【' + this.nodeSetting.name + '】节点详情'
+            } else {
+              this.drawerConf.title = '编辑节点详情'
+            }
+            console.log(this.nodeSetting)
+            // this.$set(this.nodeSetting, 'name', info.meta.name)
+            // this.$set(this.nodeSetting, 'desc', info.meta.desc)
+            // this.$set(this.nodeSetting, 'prop', info.meta.prop)
           } else {
             conf.title = '连线'
             if (this.$refs.linkSetting) {
-              this.$refs.linkSetting.resetFields()
+              // this.$refs.linkSetting.resetFields()
             }
             this.$set(this.linkSetting, 'desc', info.meta ? info.meta.desc : '')
           }
@@ -188,11 +391,26 @@ export default {
           }
         }
       },
+      dispatchConf: {
+        title: '',
+        visible: false,
+        width: '70%',
+        open: info => {
+          const conf = this.dispatchConf
+          conf.visible = true
+          conf.info = info
+        },
+        cancel: () => {
+          this.dispatchConf.visible = false
+        }
+      },
       linkSetting: {
         desc: ''
       },
       nodeSetting: {
         name: '',
+        aging: '',
+        temperature: '',
         desc: '',
         prop: ''
       },
@@ -216,7 +434,7 @@ export default {
             meta: {
               label: '1',
               name: '入库',
-              desc: '入库',
+              desc: 'K4010 001~299',
               prop: 'start'
             }
           })
@@ -239,10 +457,11 @@ export default {
           prop: 'action',
           value: () => ({
             width: 160,
-            height: 80,
+            height: 100,
             meta: {
               label: '3',
               name: '老炼前25℃',
+              temperature: '25',
               desc: '老炼前25℃',
               prop: 'action'
             }
@@ -253,10 +472,11 @@ export default {
           prop: 'action',
           value: () => ({
             width: 160,
-            height: 80,
+            height: 100,
             meta: {
               label: '4',
               name: '老炼后25℃',
+              temperature: '25',
               desc: '老炼后25℃',
               prop: 'action'
             }
@@ -320,7 +540,7 @@ export default {
                 meta: {
                   label: '3',
                   name: '入库',
-                  desc: '',
+                  desc: 'K4010 001~299',
                   prop: 'start'
                 }
               })
@@ -368,6 +588,12 @@ export default {
             }
           },
           {
+            label: '派工',
+            selected: node => {
+              this.dispatchConf.open(node)
+            }
+          },
+          {
             label: '删除',
             selected: node => {
               node.remove()
@@ -409,6 +635,7 @@ export default {
     }
   },
   mounted () {
+    console.log('mounted')
     document.addEventListener('mousemove', this.docMousemove)
     document.addEventListener('mouseup', this.docMouseup)
     this.$once('hook:beforeDestroy', () => {
@@ -417,6 +644,30 @@ export default {
     })
   },
   methods: {
+    onCellChange (key, dataIndex, value) {
+      console.log('onCellChange', key, dataIndex, value)
+      const dataSource = [...this.dataSource]
+      const target = dataSource.find(item => item.key === key)
+      if (target) {
+        target[dataIndex] = value
+        this.dataSource = dataSource
+      }
+    },
+    onDelete (key) {
+      const dataSource = [...this.dataSource]
+      this.dataSource = dataSource.filter(item => item.key !== key)
+    },
+    handleAdd () {
+      const { count, dataSource } = this
+      const newData = {
+        key: count,
+        name: '王五',
+        chip: 32,
+        machine: '5号测试机(750)'
+      }
+      this.dataSource = [...dataSource, newData]
+      this.count = count + 1
+    },
     flowNodeClick (meta) {
       console.log(this.$refs.superFlow.graph)
     },
@@ -437,12 +688,13 @@ export default {
     settingSubmit () {
       const conf = this.drawerConf
       console.log('settingSubmit')
+      console.log(this)
       if (this.drawerConf.type === drawerType.node) {
         if (!conf.info.meta) conf.info.meta = {}
         Object.keys(this.nodeSetting).forEach(key => {
           this.$set(conf.info.meta, key, this.nodeSetting[key])
         })
-        this.$refs.nodeSetting.resetFields()
+        // this.$refs.nodeSetting.resetFields()
       } else {
         if (!conf.info.meta) conf.info.meta = {}
         Object.keys(this.linkSetting).forEach(key => {
@@ -451,6 +703,10 @@ export default {
         this.$refs.linkSetting.resetFields()
       }
       conf.visible = false
+      console.log(this.nodeSetting)
+    },
+    dispatchSubmit () {
+      this.dispatchConf.visible = false
     },
     nodeMouseUp (evt) {
       console.log('nodeMouseUp')
@@ -463,6 +719,7 @@ export default {
       const conf = this.dragConf
 
       if (conf.isMove) {
+        // 元素的左上角位置
         conf.ele.style.top = clientY - conf.offsetTop + 'px'
         conf.ele.style.left = clientX - conf.offsetLeft + 'px'
       } else if (conf.isDown) {
@@ -475,8 +732,8 @@ export default {
     docMouseup ({ clientX, clientY }) {
       const conf = this.dragConf
       conf.isDown = false
-      console.log('docMouseup')
       if (conf.isMove) {
+        // flow container 的边界
         const {
           top,
           right,
@@ -496,7 +753,6 @@ export default {
               clientX - conf.offsetLeft,
               clientY - conf.offsetTop
           )
-          console.log(conf.info)
           // 添加节点
           this.$refs.superFlow.addNode({
             coordinate,
@@ -546,7 +802,18 @@ export default {
 
       this.$el.appendChild(this.dragConf.ele)
     },
+    superFlowMouseWheel (evt) {
+      if (evt.ctrlKey === true || evt.metaKey) {
+        evt.preventDefault()
+        if (evt.wheelDelta > 0) {
+          this.scaleNumber += 0.1
+        } else if (evt.wheelDelta < 0) {
+          this.scaleNumber -= 0.1
+        }
+      }
+    },
     addNodeItem () {
+      console.log('addNodeItem')
       if (this.nodeItemList.length === 4) {
         this.nodeItemList.push(
           {
@@ -554,10 +821,11 @@ export default {
             prop: 'action',
             value: () => ({
               width: 160,
-              height: 80,
+              height: 100,
               meta: {
                 label: '5',
                 name: '老炼后125℃',
+                temperature: '125',
                 desc: '老炼后125℃',
                 prop: 'action'
               }
@@ -571,10 +839,11 @@ export default {
             prop: 'action',
             value: () => ({
               width: 160,
-              height: 80,
+              height: 100,
               meta: {
                 label: '6',
                 name: '老炼后-55℃',
+                temperature: '-55',
                 desc: '老炼后-55℃',
                 prop: 'action'
               }
@@ -582,6 +851,7 @@ export default {
           }
         )
       }
+      this.nodeItemModalvisible = false
     }
   }
 }

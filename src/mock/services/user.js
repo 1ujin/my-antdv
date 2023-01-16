@@ -5,7 +5,7 @@ const info = options => {
   console.log('options', options)
   const userInfo = {
     id: '4291d7da9005377ec9aec4a71ea837f',
-    name: '塞西',
+    name: '赛西',
     username: 'admin',
     password: '',
     avatar: '/avatar2.jpg',
@@ -566,13 +566,14 @@ const userNav = options => {
       path: '/dashboard/analysis'
     },
     {
-      name: 'Statistics',
+      name: 'Schedule',
       parentId: 1,
       id: 3,
       meta: {
-        title: '统计',
+        title: '机时排期',
         show: true
-      }
+      },
+      component: 'Schedule'
     },
 
     // work
@@ -595,6 +596,23 @@ const userNav = options => {
         title: '测试流程'
       },
       component: 'Process'
+    },
+    {
+      name: 'filemanager',
+      parentId: 100,
+      id: 102,
+      meta: {
+        title: '远程管理'
+      },
+      component: 'FileManager1'
+    },
+    {
+      name: 'utils',
+      parentId: 100,
+      id: 103,
+      meta: {
+        title: '测试工具'
+      }
     },
 
     // form
